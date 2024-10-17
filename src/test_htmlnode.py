@@ -16,8 +16,8 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode()
         self.assertEqual(node.tag, None)
         self.assertEqual(node.value, None)
-        self.assertEqual(node.children, None)
-        self.assertEqual(node.props, None)
+        self.assertEqual(node.children, [])
+        self.assertEqual(node.props, {})
 
     def test_props_to_html_empty(self):
         # Test props_to_html method with no properties
@@ -71,7 +71,7 @@ class TestLeafNode(unittest.TestCase):
         node = LeafNode("span", "content", {"class": "text"})
         self.assertEqual(node.tag, "span")
         self.assertEqual(node.value, "content")
-        self.assertEqual(node.children, None)
+        self.assertEqual(node.children, [])
         self.assertEqual(node.props, {"class": "text"})
 
     def test_to_html_with_tag_and_props(self):
@@ -121,7 +121,7 @@ class TestParentNode(unittest.TestCase):
         self.assertEqual(node.tag, "div")
         self.assertEqual(node.value, None)
         self.assertEqual(node.children, children)
-        self.assertEqual(node.props, None)
+        self.assertEqual(node.props, {})
 
     def test_to_html_basic(self):
         # Test to_html method with basic structure

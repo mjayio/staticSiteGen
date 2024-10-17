@@ -42,7 +42,7 @@ class ParentNode(HTMLNode):
     def to_html(self) -> str:
         if not self.tag:
             raise ValueError("All parent nodes must have a tag.")
-        if not isinstance(self.children, list):
+        if not isinstance(self.children, list) or not self.children:
             raise ValueError("All parent nodes must have a children list.")
         children_html = functools.reduce(lambda x, y: x + y.to_html(), self.children, "")
         return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
