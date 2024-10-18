@@ -1,8 +1,8 @@
-from textnode import NodeType, TextNode
+from textnode import TextType, TextNode
 from htmlnode import LeafNode
 
 def main():
-    textnode = TextNode("hello world", NodeType.TEXT, "https://example.com")
+    textnode = TextNode("hello world", TextType.TEXT, "https://example.com")
     print(text_node_to_html_node(textnode))
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
