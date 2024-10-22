@@ -1,5 +1,5 @@
 import functools
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional
 
 class HTMLNode:
     def __init__(self, tag: Optional[str] = None, value: Optional[str] = None, children: Optional[List['HTMLNode']] = None, props: Optional[Dict[str, str]] = None):
@@ -34,7 +34,7 @@ class LeafNode(HTMLNode):
         if not self.tag:
             return self.value
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
-    
+
 class ParentNode(HTMLNode):
     def __init__(self, tag: str, children: List[HTMLNode], props: Optional[Dict[str, str]] = None):
         super().__init__(tag, None, children, props)

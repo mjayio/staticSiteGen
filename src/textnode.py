@@ -17,6 +17,7 @@ class TextType(Enum):
     BOLD = "bold" # Represents a bold text node in the document with **text**.
     ITALIC = "italic" # Represents an italic text node in the document with *text*.
     CODE = "code" # Represents a code block node in the document with `code`.
+    LIST = "list" # Represents a list node in the document with - or *.
     LINK = "link" # Represents a hyperlink node in the document with [text](url).
     IMAGE = "image" # Represents an image node in the document with ![text](url).
 

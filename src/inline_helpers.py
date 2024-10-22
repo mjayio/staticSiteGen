@@ -1,6 +1,8 @@
+from htmlnode import LeafNode
 from textnode import TextNode, TextType
 from typing import List
 import re
+
 
 textType_mappings = {
     "text": TextType.TEXT,
@@ -8,8 +10,60 @@ textType_mappings = {
     "italic": TextType.ITALIC,
     "code": TextType.CODE,
     "link": TextType.LINK,
-    "image": TextType.IMAGE
+    "image": TextType.IMAGE,
+    "list": TextType.LIST
 }
+
+
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
+    """
+    Converts a text node to an HTML node.
+
+    This function takes a text node object and converts it into an HTML node
+    based on the type of the text node. The conversion is done using a match-case
+    statement that checks the `text_type` attribute of the text node and returns
+    an appropriate `LeafNode` object.
+
+    Parameters:
+    text_node (TextNode): The text node object to be converted. It must have the
+    following attributes:
+    - text_type (str): The type of the text node. It can be
+    one of the following values: "text", "bold", "italic",
+    "code", "link", "image".
+    - text (str): The text content of the node.
+    - url (str, optional): The URL for link or image nodes.
+
+    Returns:
+    LeafNode: An HTML node represented as a `LeafNode` object. The tag and attributes
+    of the `LeafNode` depend on the `text_type` of the input `text_node`.
+
+    Raises:
+    ValueError: If the `text_type` of the text node is not one of the expected values.
+
+    Example:
+    >>> text_node = TextNode(text="Hello, World!", text_type="bold")
+    >>> html_node = text_node_to_html_node(text_node)
+    >>> print(html_node)
+    LeafNode(tag="b", text="Hello, World!")
+    """
+    match text_node.text_type:
+        case "text":
+            return LeafNode("", text_node.text)
+        case "bold":
+            return LeafNode("b", text_node.text)
+        case "italic":
+            return LeafNode("i", text_node.text)
+        case "code":
+            return LeafNode("code", text_node.text)
+        case "link":
+            return LeafNode("a", text_node.text, {"href": text_node.url})
+        case "image":
+            return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
+        case "list":
+            return LeafNode("li", text_node.text)
+        case _:
+            raise ValueError(f"Invalid text type: {text_node.text_type}")
+
 
 def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: TextType) -> List[TextNode]:
     """
@@ -36,15 +90,27 @@ def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: 
     ]
     """
     new_nodes = []
+
     for node in old_nodes:
-        # if re.search(r"\ +" + re.escape(delimiter) + r"+" + re.escape(delimiter) + r"\ +", node.text) is None:
-        #     new_nodes.append(node)
-        #     continue
-        parts = node.text.split(delimiter)
+        parts = []
+        if text_type != TextType.LIST:
+            parts = node.text.split(delimiter)
+        else:
+            parts = [node.text]
         for i, part in enumerate(parts):
+            # skip if part is empty string
+            if not part:
+                continue
             current_text_type = textType_mappings[node.text_type] if i % 2 == 0 else text_type
+            if text_type == TextType.LIST and re.match(r"^[*-] ", part):
+                part = re.sub(r"^[*-] ", "", part)
+                current_text_type = TextType.LIST
+            if text_type == TextType.LIST and re.match(r"^\d+\. ", part):
+                part = re.sub(r"^\d+\. ", "", part)
+                current_text_type = TextType.LIST
             new_nodes.append(TextNode(part, current_text_type, node.url if i % 2 == 0 else None))
     return new_nodes
+
 
 def extract_markdown_images(text: str) -> List[tuple]:
     """
@@ -63,6 +129,7 @@ def extract_markdown_images(text: str) -> List[tuple]:
     """
     matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
     return matches
+
 
 def extract_markdown_links(text: str) -> List[tuple]:
     """
@@ -118,6 +185,7 @@ def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
             if prev_end < len(node.text):
                 nodes.append(TextNode(node.text[prev_end:], TextType.TEXT))
     return nodes
+
 
 def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
     """
@@ -186,6 +254,7 @@ def text_to_textnodes(text: str) -> List[TextNode]:
     """
     node = TextNode(text, TextType.TEXT)
     nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+    nodes = split_nodes_delimiter(nodes, "", TextType.LIST)
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
     nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
     nodes = split_nodes_image(nodes)
