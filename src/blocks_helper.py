@@ -89,47 +89,74 @@ def block_to_block_type(markdown_block: str) -> BlockType:
     return BlockType.PARAGRAPH
 
 
-def markdown_to_html_node(markdown : str) -> HTMLNode:
-    
+def markdown_to_html_node(markdown: str) -> HTMLNode:
+    """
+    Converts a markdown string into an HTMLNode tree structure.
+    This function processes a markdown string, converts it into blocks, and then
+    transforms each block into an appropriate HTML node. The resulting HTML nodes
+    are then nested within a parent "div" node.
+    Args:
+        markdown (str): The markdown string to be converted.
+    Returns:
+        HTMLNode: A tree structure representing the HTML equivalent of the markdown input.
+    The function performs the following steps:
+    1. Converts the markdown string into blocks using `markdown_to_blocks`.
+    2. Determines the type of each block using `block_to_block_type`.
+    3. Converts each block into an HTML node based on its type.
+    4. Processes the text within each block node to convert it into text nodes.
+    5. Converts text nodes into HTML nodes and nests them appropriately.
+    6. Wraps all block nodes within a parent "div" node and returns it.
+    Block types handled:
+    - HEADING1 to HEADING6: Converted to <h1> to <h6> tags.
+    - CODE: Converted to <code> tag.
+    - QUOTE: Converted to <blockquote> tag.
+    - UNORDERED_LIST: Converted to <ul> tag.
+    - ORDERED_LIST: Converted to <ol> tag.
+    - Default: Converted to <p> tag.
+    Example:
+        markdown = "# Heading 1\n\nSome text."
+        html_node = markdown_to_html_node(markdown)
+        # html_node will represent the HTML structure:
+        # <div>
+        #   <h1>Heading 1</h1>
+        #   <p>Some text.</p>
+        # </div>
+    """
     blocks = markdown_to_blocks(markdown)
     
-    block_nodes = []    
+    block_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type == BlockType.HEADING1:
             block_nodes.append(HTMLNode("h1", block[2:]))
-        if block_type == BlockType.HEADING2:
+        elif block_type == BlockType.HEADING2:
             block_nodes.append(HTMLNode("h2", block[3:]))
-        if block_type == BlockType.HEADING3:
+        elif block_type == BlockType.HEADING3:
             block_nodes.append(HTMLNode("h3", block[4:]))
-        if block_type == BlockType.HEADING4:
+        elif block_type == BlockType.HEADING4:
             block_nodes.append(HTMLNode("h4", block[5:]))
-        if block_type == BlockType.HEADING5:
+        elif block_type == BlockType.HEADING5:
             block_nodes.append(HTMLNode("h5", block[6:]))
-        if block_type == BlockType.HEADING6:
+        elif block_type == BlockType.HEADING6:
             block_nodes.append(HTMLNode("h6", block[7:]))
-        if block_type == BlockType.CODE:
+        elif block_type == BlockType.CODE:
             block_nodes.append(HTMLNode("code", block[3:-3]))
-        if block_type == BlockType.QUOTE:
+        elif block_type == BlockType.QUOTE:
             block_nodes.append(HTMLNode("blockquote", block[2:]))
-        if block_type == BlockType.UNORDERED_LIST:
-            # list_text = re.split(r"^[*-] ", block)[1]
+        elif block_type == BlockType.UNORDERED_LIST:
             block_nodes.append(HTMLNode("ul", block))
-        if block_type == BlockType.ORDERED_LIST:
-            # list_text = re.split(r"^\d+\. ", block)[1]
+        elif block_type == BlockType.ORDERED_LIST:
             block_nodes.append(HTMLNode("ol", block))
-        if block_type == BlockType.PARAGRAPH:
+        else:
             block_nodes.append(HTMLNode("p", block))
-        
-        new_block_nodes = []
-        for block_node in block_nodes:
-            text_nodes = []
-            for text in block_node.value.split("\n"):
-                text_nodes.extend(text_to_textnodes(text))
-            html_nodes = [text_node_to_html_node(text_node) for text_node in text_nodes]
-            new_block_nodes.append(ParentNode(block_node.tag, html_nodes))
-        
-        html_node = ParentNode("div", new_block_nodes)
-
-
+    
+    new_block_nodes = []
+    for block_node in block_nodes:
+        text_nodes = []
+        for text in block_node.value.split("\n"):
+            text_nodes.extend(text_to_textnodes(text))
+        html_nodes = [text_node_to_html_node(text_node) for text_node in text_nodes]
+        new_block_nodes.append(ParentNode(block_node.tag, html_nodes))
+    
+    html_node = ParentNode("div", new_block_nodes)
     return html_node
