@@ -1,5 +1,5 @@
 import unittest
-from blocks_helper import BlockType, block_to_block_type, block_to_html, markdown_to_blocks
+from blocks_helper import BlockType, block_to_block_type, markdown_to_html_node, markdown_to_blocks
 from htmlnode import HTMLNode, ParentNode
 
 class TestMarkdownToBlocks(unittest.TestCase):
@@ -148,37 +148,37 @@ class TestBlockToHTML(unittest.TestCase):
     def test_heading1_to_html(self):
         markdown = "# Heading 1"
         expected = ParentNode("div", [ParentNode("h1", [HTMLNode("", "Heading 1")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_paragraph_to_html(self):
         markdown = "This is a paragraph."
         expected = ParentNode("div", [ParentNode("p", [HTMLNode("", "This is a paragraph.")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_code_block_to_html(self):
         markdown = "```\nThis is a code block\n```"
         expected = ParentNode("div", [ParentNode("code", [HTMLNode("", "This is a code block")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_quote_block_to_html(self):
         markdown = "> This is a quote"
         expected = ParentNode("div", [ParentNode("blockquote", [HTMLNode("", "This is a quote")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_unordered_list_to_html(self):
         markdown = "* This is an unordered list item"
         expected = ParentNode("div", [ParentNode("ul", [HTMLNode("li", "This is an unordered list item")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_ordered_list_to_html(self):
         markdown = "1. This is an ordered list item"
         expected = ParentNode("div", [ParentNode("ol", [HTMLNode("li", "This is an ordered list item")])])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
     def test_mixed_blocks_to_html(self):
@@ -197,7 +197,7 @@ This is a paragraph.
             ParentNode("ul", [HTMLNode("li", "List item 1"), HTMLNode("li", "List item 2")]),
             ParentNode("ol", [HTMLNode("li", "Ordered item 1"), HTMLNode("li", "Ordered item 2")]),
         ])
-        result = block_to_html(markdown)
+        result = markdown_to_html_node(markdown)
         self.assertEqual(result, expected)
 
 if __name__ == "__main__":

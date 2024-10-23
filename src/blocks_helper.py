@@ -89,7 +89,7 @@ def block_to_block_type(markdown_block: str) -> BlockType:
     return BlockType.PARAGRAPH
 
 
-def block_to_html(markdown : str) -> HTMLNode:
+def markdown_to_html_node(markdown : str) -> HTMLNode:
     
     blocks = markdown_to_blocks(markdown)
     
